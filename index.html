@@ -62,6 +62,10 @@ $(function(){
     };
 
     var touch_end = function(e){
+        if (status == 'wait_up') {
+            status = 'up';
+            return;
+        }
 	if (status != 'down') return;
 	var delta = (new Date()).getTime() - time;
 	status = 'up';
@@ -85,7 +89,14 @@ $(function(){
     op_map = {'a': '+', 'b': '-', 'c' : '*', 'd': '/'};
 
     var time_interval = function(){
-	if (status == 'up') {
+        if (status == 'down') {
+	    var delta = (new Date()).getTime() - time;
+            if (delta > 500) {
+                $('#morse').text($('#morse').text() + '-');
+                window.navigator.vibrate([500]);
+                status = 'wait_up';
+            }
+        } else if (status == 'up') {
 	    var delta = (new Date()).getTime() - time;
 	    if (delta > 1000) {
 		var t = $('#morse').text();
