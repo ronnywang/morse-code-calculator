@@ -3,6 +3,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Morse Code Calculator</title>
+<style>
+#response-area.clicked {
+    background: yellow;
+}
+</style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css">
@@ -13,7 +18,7 @@
     <p>Input: <span id="input"></span></p>
     <p>Result: <span id="result"></span></p>
     <p>Warning: <span id="warning"></span></p>
-<pre>
+<pre id="response-area">
 "1": ".----", "2": "..---", 
 "3": "...--", "4": "....-",
 "5": ".....", "6": "-....",
@@ -74,10 +79,10 @@ $(function(){
 
 	if (delta > 500) {
 	    $('#morse').text($('#morse').text() + '-');
-	    window.navigator.vibrate([500]);
+	    custom_vibrate([500]);
 	} else {
 	    $('#morse').text($('#morse').text() + '.');
-	    window.navigator.vibrate([100]);
+	    custom_vibrate([100]);
 	}
     };
 
@@ -86,6 +91,24 @@ $(function(){
     $(window).bind('touchend', touch_end);
     $(window).bind('mouseup', touch_end);
 
+    var response_vibrate = function() {
+        $('#response-area').toggleClass('clicked');
+        var times = $('#response-area').data('vibrate_times');
+        var t = times.shift();
+        $('#response-area').data('vibrate_times', times);
+        if (t) {
+            setTimeout(response_vibrate, t);
+        } else {
+            $('#response-area').removeClass('clicked');
+        }
+    };
+
+    var custom_vibrate = function(times){
+        window.navigator.vibrate(times);
+
+        $('#response-area').data('vibrate_times', times);
+        response_vibrate();
+    };
 
     op_map = {'a': '+', 'b': '-', 'c' : '*', 'd': '/'};
 
@@ -94,13 +117,13 @@ $(function(){
 	    var delta = (new Date()).getTime() - time;
             if (delta > 500) {
                 $('#morse').text($('#morse').text() + '-');
-                window.navigator.vibrate([500]);
+                custom_vibrate([500]);
                 status = 'wait_up';
             }
         } else if (status == 'up') {
 	    var delta = (new Date()).getTime() - time;
 	    if (delta > 1000) {
-                window.navigator.vibrate([100]);
+                custom_vibrate([100]);
 		var t = $('#morse').text();
 		if ('undefined' !== typeof(code_map[t])) {
 		    var r = code_map[t];
@@ -130,7 +153,7 @@ $(function(){
 				}
 			    }
 			    $('#warning').text('');
-                            window.navigator.vibrate(vibrate);
+                            custom_vibrate(vibrate);
 			} else {
 			    $('#input').append(code_map[t]);
 			}
