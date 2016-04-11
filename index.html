@@ -64,6 +64,7 @@ $(function(){
     var touch_end = function(e){
         if (status == 'wait_up') {
             status = 'up';
+            time = (new Date()).getTime();
             return;
         }
 	if (status != 'down') return;
@@ -128,7 +129,7 @@ $(function(){
 				}
 			    }
 			    $('#warning').text('');
-			    window.navigator.vibrate(vibrate);
+                            window.navigator.vibrate(vibrate);
 			} else {
 			    $('#input').append(code_map[t]);
 			}
